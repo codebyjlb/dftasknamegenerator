@@ -1,34 +1,66 @@
 "use client"
 
+import React, {useRef} from "react"
 import { useState } from "react"
-import { CalendarDays, Loader2 } from "lucide-react"
+import { format } from "date-fns"
+import {  Calendar as CalendarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { SelectClient } from "./clients"
+import { cn } from "@/lib/utils"
+import { TaskList } from "./getProduct"
 
+
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+
+ 
 export default function ContentIdGenerator() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [campaignName, setCampaignName] = useState("")
-  const [campaignId, setCampaignId] = useState("")
 
-  const handleGenerate = () => {
-    setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => setIsLoading(false), 1000)
+  const alertDescriptionRef = useRef<HTMLDivElement>(null);
+
+ 
+  const [campaignName, setCampaignName] = useState("")
+  const [selectedTask, setSelectedTask] = useState<string | undefined>(undefined)
+  const [selectedClient, setSelectedClient] = useState<string | undefined>(undefined)
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
+
+  const handleTaskSelect = (taskName: string) => {
+    setSelectedTask(taskName);
+};
+
+  const handleClientSelect = (clientName: string) => {
+    setSelectedClient(clientName);
+  };
+
+  const rms = (str: string): string => {
+    return str.replace(/\s+/g, "");
+  };
+
+  const cfl = (str : string) => 
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+
+ const handleGenerate = () => {
+  
+  if (alertDescriptionRef.current) {
+    const textToCopy = alertDescriptionRef.current.innerText;
+    navigator.clipboard.writeText(textToCopy)
+  
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+      });
   }
 
-  // Auto-generate current calendar week
+};
 
-  const getTodayDate = () => {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const year = String(today.getFullYear()).slice(-2); // Get last 2 digits of year
-  
-    return `${day}${month}${year}`;
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
@@ -45,15 +77,35 @@ export default function ContentIdGenerator() {
                 <label className="text-sm font-medium" htmlFor="campaign-id">
                     Client
                   </label>
-                <SelectClient />
+                <SelectClient clientSelected={handleClientSelect}/>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor="calendar-week">
                 Date
               </label>
-              <div className="relative">
-                <Input id="calendar-week" defaultValue={getTodayDate()} className="pl-9" />
-                <CalendarDays className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <div className="relative">
+                        <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[280px] justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "dd MMM yyyy") : "Pick a date"}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
               </div>
             </div>
           </div>
@@ -71,47 +123,40 @@ export default function ContentIdGenerator() {
               />
             </div>
             <div className="space-y-2">
+              <div className="flex gap-2 items">
               <label className="text-sm font-medium" htmlFor="campaign-id">
                 Product
               </label>
-              <Input
-                id="campaign-id"
-                placeholder=""
-                value={campaignId}
-                onChange={(e) => setCampaignId(e.target.value)}
-              />
+              <TaskList tasksSelected={handleTaskSelect} />
+              </div>
+              
+                <Input
+                  id="task-name"
+                  placeholder=""
+                  value={selectedTask}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                />
+              
             </div>
           </div>
-{/* 
-          <div className="space-y-2">
-            <label className="text-sm font-medium"></label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Please select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value=""></SelectItem>
-             
-            </Select>
-          </div> */}
+
+          {selectedClient && campaignName && selectedTask && date ? (
+              <AlertDescription id="task-name" className="text-lg font-medium text-center" ref={alertDescriptionRef}>
+                {rms(selectedClient)}_{cfl(campaignName)}_{rms(cfl(selectedTask))}_{format(date, "ddMMyy")}
+              </AlertDescription>
+            ) : null}
 
           <Button
             className="w-full"
             size="lg"
             onClick={handleGenerate}
-            disabled={isLoading || !campaignName || !campaignId}
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              "Generate Task Name"
-            )}
+            Copy Task Name
           </Button>
+           
 
           <Alert>
+
             <AlertDescription className="text-sm text-center">
                 For any request or issues, please send email to dev@digitalfeet.com or make a{" "}
               <a href="#" className="font-medium underline hover:text-primary">

@@ -9,6 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+interface ClientProps {
+    clientSelected: (clientName: string) => void;
+}
+
 const clients = [
   "Advania",
   "ALSO Software",
@@ -29,7 +33,7 @@ const clients = [
 ]
 
 
-export function SelectClient() {
+export function SelectClient({ clientSelected }: ClientProps) {
   return (
     <Select >
       <SelectTrigger className="w-full">
@@ -38,7 +42,7 @@ export function SelectClient() {
       <SelectContent>
         <SelectGroup>
             {clients.map((client) => (
-               <SelectItem key={client} value={client}>{client}</SelectItem>
+               <SelectItem key={client} value={client} onClick={() => clientSelected(client)}>{client}</SelectItem>
             ))}
         </SelectGroup>
       </SelectContent>
