@@ -11,6 +11,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { SelectClient } from "./clients"
 import { cn } from "@/lib/utils"
 import { TaskList } from "./getProduct"
+import { toast } from "sonner"
+import { Howl } from "howler";
+import Image from "next/image";
+
 
 
 import { Calendar } from "@/components/ui/calendar"
@@ -23,6 +27,21 @@ import {
 
  
 export default function ContentIdGenerator() {
+
+  const clickSound = new Howl({
+    src: ["/sound/copy.wav"], 
+    volume: 0.5,
+  });
+
+  const jlbClick = (e : React.MouseEvent) => {
+    e.preventDefault(); // Prevent default mailto action for toast to appear first
+
+    toast("Build by JLB")
+
+    setTimeout(() => {
+      window.location.href = "mailto:louie@digitalfeet.com";
+    }, 1000);
+  };
 
   const alertDescriptionRef = useRef<HTMLDivElement>(null);
 
@@ -45,14 +64,18 @@ export default function ContentIdGenerator() {
     return str.replace(/\s+/g, "");
   };
 
-  const cfl = (str : string) => 
-    str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+  const cfl = (str: string) => (str ? str.toUpperCase() : '');
 
  const handleGenerate = () => {
   
   if (alertDescriptionRef.current) {
     const textToCopy = alertDescriptionRef.current.innerText;
     navigator.clipboard.writeText(textToCopy)
+      .then(() => {
+        toast("Task name copied successfully.");
+        clickSound.play();
+
+      })
   
       .catch((err) => {
         console.error('Failed to copy text: ', err);
@@ -66,7 +89,10 @@ export default function ContentIdGenerator() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
       <Card className="max-w-2xl w-full">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold tracking-tight">Digitalfeet Task Name Generator</CardTitle>
+          <CardTitle className="text-xl font-bold tracking-tight flex items-center">
+            
+            <Image src="/dflogo.png" alt="Digitalfeet Logo" width={60} height={60} /> 
+            Digitalfeet Task Name Generator</CardTitle>
           <div className="text-sm text-muted-foreground space-y-1">
             <p></p>
           </div>
@@ -89,7 +115,7 @@ export default function ContentIdGenerator() {
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-[280px] justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal",
                       !date && "text-muted-foreground"
                     )}
                   >
@@ -122,29 +148,36 @@ export default function ContentIdGenerator() {
                 onChange={(e) => setCampaignName(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <div className="flex gap-1 items">
+            <div className="flex flex-col space-y-2 space-between">
+              <div className="flex gap-1 mb-1">
               <label className="text-sm font-medium" htmlFor="campaign-id">
                 Product
               </label>
               <TaskList tasksSelected={handleTaskSelect} />
               </div>
-              
-                <Input
+                    
+               
+              <Input
+            
                   id="task-name"
                   placeholder=""
                   value={selectedTask}
                   onChange={(e) => setSelectedTask(e.target.value)}
                 />
               
+              
             </div>
           </div>
 
           {selectedClient && campaignName && selectedTask && date ? (
-              <AlertDescription id="task-name" className="text-lg font-medium text-center" ref={alertDescriptionRef}>
-                {rms(selectedClient)}_{cfl(campaignName)}_{rms(cfl(selectedTask))}_{format(date, "ddMMyy")}
-              </AlertDescription>
-            ) : null}
+                <AlertDescription
+                  id="task-name"
+                  className="text-lg font-medium text-center px-6 break-words"
+                  ref={alertDescriptionRef}
+                >
+                  {rms(selectedClient)}_{cfl(campaignName)}_{rms(cfl(selectedTask))}_{format(date, "ddMMyy")}
+                </AlertDescription>
+              ) : null}
 
           <Button
             className="w-full"
@@ -164,7 +197,7 @@ export default function ContentIdGenerator() {
               </a>{" "}
             
               <div className="mt-6 text-muted-foreground">
-                 Made with ❤️ by DF Dev Team
+                 Made with <a href="mailto:louie@digitalfeet.com" onClick={jlbClick}>❤️</a> by DF Dev Team
                 <br />
               </div>
 
