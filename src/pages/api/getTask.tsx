@@ -5,41 +5,65 @@ interface ClickUpTask {
   name: string;
 }
 
+const CLICKUP_API_KEY = "pk_94860021_O2D7WIOM35IUXAGG66CEOYQ5QGECJL1T";
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { listId } = req.query;
-  const apiKey = "pk_94860021_O2D7WIOM35IUXAGG66CEOYQ5QGECJL1T";
+  const { folderId } = req.query;
 
-
-  if (!listId || typeof listId !== "string") {
-    return res.status(400).json({ error: "List ID is required" });
+  if (!folderId || typeof folderId !== "string") {
+    return res.status(400).json({ error: "Folder ID is required" });
   }
 
   try {
-    const response = await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
+    // Step 1: Fetch all lists inside the folder
+    const listsResponse = await fetch(`https://api.clickup.com/api/v2/folder/${folderId}/list`, {
       method: "GET",
       headers: {
-        Authorization: apiKey as string,
+        Authorization: CLICKUP_API_KEY,
         "Content-Type": "application/json",
       },
     });
 
-    if (!response.ok) {
-      throw new Error(response.statusText);
-
+    if (!listsResponse.ok) {
+      throw new Error(`Error fetching lists: ${listsResponse.statusText}`);
     }
 
-    const data = await response.json();
+    const listsData = await listsResponse.json();
+    const lists = listsData.lists ?? []; // Extract lists inside the folder
 
-    const tasks: ClickUpTask[] = Array.isArray(data.tasks)
-      ? data.tasks.map((task: { id: string; name: string }) => ({
-          id: task.id,
-          name: task.name,
-        }))
-      : []; 
-    
-    console.log(tasks);
-    res.status(200).json({ tasks });
+    let allTasks: ClickUpTask[] = [];
+
+    // Step 2: Fetch tasks from each list
+    for (const list of lists) {
+      const listId = list.id;
+
+      const tasksResponse = await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
+        method: "GET",
+        headers: {
+          Authorization: CLICKUP_API_KEY,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!tasksResponse.ok) {
+        console.warn(`Failed to fetch tasks from list ${listId}: ${tasksResponse.statusText}`);
+        continue; // Skip this list if fetching tasks fails
+      }
+
+      const tasksData = await tasksResponse.json();
+      const tasks: ClickUpTask[] = Array.isArray(tasksData.tasks)
+        ? tasksData.tasks.map((task: { id: string; name: string }) => ({
+            id: task.id,
+            name: task.name,
+          }))
+        : [];
+
+      allTasks = [...allTasks, ...tasks]; // Append tasks from this list
+    }
+
+    return res.status(200).json({ tasks: allTasks });
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    console.error("Error fetching tasks:", error);
+    return res.status(500).json({ error: (error as Error).message });
   }
 }

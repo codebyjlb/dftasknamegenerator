@@ -36,14 +36,14 @@ const clients = [
 export function SelectClient({ clientSelected }: ClientProps) {
 
   return (
-    <Select >
+    <Select onValueChange={clientSelected}>
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Select Client" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
             {clients.map((client) => (
-               <SelectItem key={client} value={client} onClick={() => clientSelected(client)}>{client}</SelectItem>
+               <SelectItem key={client} value={client}>{client}</SelectItem>
             ))}
         </SelectGroup>
       </SelectContent>

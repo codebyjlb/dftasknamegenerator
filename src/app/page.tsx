@@ -123,7 +123,7 @@ export default function ContentIdGenerator() {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex gap-2 items">
+              <div className="flex gap-1 items">
               <label className="text-sm font-medium" htmlFor="campaign-id">
                 Product
               </label>
@@ -159,7 +159,7 @@ export default function ContentIdGenerator() {
 
             <AlertDescription className="text-sm text-center">
                 For any request or issues, please send email to dev@digitalfeet.com or make a{" "}
-              <a href="#" className="font-medium underline hover:text-primary">
+              <a href="https://app.clickup.com/9016716806/v/l/f/90163980943" className="font-medium underline hover:text-primary">
                 ClickUp sub-task here
               </a>{" "}
             
