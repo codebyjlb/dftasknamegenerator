@@ -29,11 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const data = await response.json();
-    const tasks: ClickUpTask[] = (data.tasks.map as ClickUpTask[]).map((task) => ({
-      id: task.id,
-      name: task.name,
-    }));
 
+    const tasks: ClickUpTask[] = Array.isArray(data.tasks)
+      ? data.tasks.map((task: { id: string; name: string }) => ({
+          id: task.id,
+          name: task.name,
+        }))
+      : []; 
+    
+    console.log(tasks);
     res.status(200).json({ tasks });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

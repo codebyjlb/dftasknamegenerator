@@ -134,7 +134,7 @@ export default function ContentIdGenerator() {
                   id="task-name"
                   placeholder=""
                   value={selectedTask}
-                  onChange={(e) => setCampaignName(e.target.value)}
+                  onChange={(e) => setSelectedTask(e.target.value)}
                 />
               
             </div>
