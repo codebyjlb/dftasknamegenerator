@@ -14,6 +14,7 @@ import { TaskList } from "./getProduct"
 import { toast } from "sonner"
 import { Howl } from "howler";
 import Image from "next/image";
+import Prank from "./prank"
 
 
 
@@ -33,15 +34,6 @@ export default function ContentIdGenerator() {
     volume: 0.5,
   });
 
-  const jlbClick = (e : React.MouseEvent) => {
-    e.preventDefault(); // Prevent default mailto action for toast to appear first
-
-    toast("Build by JLB")
-
-    setTimeout(() => {
-      window.location.href = "mailto:louie@digitalfeet.com";
-    }, 1000);
-  };
 
   const alertDescriptionRef = useRef<HTMLDivElement>(null);
 
@@ -197,7 +189,7 @@ export default function ContentIdGenerator() {
               </a>{" "}
             
               <div className="mt-6 text-muted-foreground">
-                 Made with <a href="mailto:louie@digitalfeet.com" onClick={jlbClick}>❤️</a> by DF Dev Team
+                 Made with by <Prank /> DF Dev Team
                 <br />
               </div>
 
