@@ -5,7 +5,9 @@ interface ClickUpTask {
   name: string;
 }
 
-const CLICKUP_API_KEY = process.env.CLICKUP_API!;
+const CLICKUP_API_KEY = process.env.CLICKUP_API_KEY!;
+
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { folderId } = req.query;
 

@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-const CLICKUP_API_KEY = process.env.NEXT_PUBLIC_CLICKUP_API_KEY!;
+const CLICKUP_API_KEY = process.env.CLICKUP_API_KEY!;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+  
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }

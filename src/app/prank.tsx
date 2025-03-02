@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { toast } from "sonner"
 import { Howl } from "howler";
 
 export default function Prank() {
@@ -66,7 +65,20 @@ export default function Prank() {
   
       setTimeout(() => {
         
-        toast("Build by JLB (louie@digitalfeet.com)")
+        console.log(
+          "\x1b[7m" + // Invert colors
+          `
+    
+   ▗▖▗▖   ▗▄▄▖ 
+   ▐▌▐▌   ▐▌ ▐▌
+   ▐▌▐▌   ▐▛▀▚▖
+▗▄▄▞▘▐▙▄▄▖▐▙▄▞▘
+                                                                                           
+          ` +
+          "\x1b[0m" // Reset colors
+        );
+
+        
     }, 1000);
     };
 
